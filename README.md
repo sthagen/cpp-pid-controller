@@ -1,2 +1,2 @@
 # cpp-pid-controller
-Experimental generic PID controller implmenentation.
+Experimental generic PID controller implementation.
