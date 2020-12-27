@@ -52,4 +52,24 @@ namespace pid {
         T running_integral;  // state variable for evaluation of integral control aspect
     };
 
+    template <class T>
+    constexpr auto controller = [](T time_interval, T const low, T const high, T const k_p, T const k_i, T const k_d) {
+        T previous_deviation{0};
+        T running_integral{0};
+        return [time_interval, low, high, k_p, k_i, k_d, previous_deviation, running_integral](
+                T target, T read, T replace_time_interval=T{0}) mutable {
+            if (replace_time_interval != T{0}) time_interval = replace_time_interval;
+            T deviation = target - read;
+            running_integral += deviation * time_interval;  // update integration
+
+            T change = k_p * deviation
+                       + k_i * running_integral
+                       + k_d * (deviation - previous_deviation) / time_interval;
+
+            previous_deviation = deviation;  // keep deviation for next iteration derivative
+
+            return std::clamp(change, low, high);
+        };
+    };
+
 }
